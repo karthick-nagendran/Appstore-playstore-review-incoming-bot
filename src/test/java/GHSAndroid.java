@@ -85,7 +85,7 @@ public class GHSAndroid {
     }
 
 
-    @Test
+
     public void executeCommand() throws JSONException, IOException, ParseException {
         stringBuilder();
         client = HttpClientBuilder.create().build();
