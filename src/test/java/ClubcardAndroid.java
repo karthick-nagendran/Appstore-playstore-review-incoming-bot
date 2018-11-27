@@ -32,7 +32,7 @@ public class ClubcardAndroid {
     ArrayList<String> finalString = new ArrayList<>();
 
 
-    public JSONArray getJSONData() throws IOException, JSONException {
+    private JSONArray getJSONData() throws IOException, JSONException {
         client = HttpClientBuilder.create().build();
         request = new HttpGet("https://still-plateau-10039.herokuapp.com/reviews?id=com.tesco.clubcardmobile");
 
@@ -41,7 +41,7 @@ public class ClubcardAndroid {
         return new JSONArray(json);
     }
 
-    public int dateVerification(String rDate) throws ParseException {
+    private int dateVerification(String rDate) throws ParseException {
 
         DateFormat responseDateFormat = new SimpleDateFormat("MMMM dd, yyyy");
         String now = LocalDate.now().toString();
@@ -51,7 +51,7 @@ public class ClubcardAndroid {
         return (int) ((currentDate.getTime() - reviewDate.getTime()) / (1000 * 60 * 60 * 24));
     }
 
-    public void filterData() throws IOException, JSONException, ParseException {
+    private void filterData() throws IOException, JSONException, ParseException {
 
         JSONArray entry = getJSONData();
         for (int i = 0; i < entry.length() - 1; i++) {
@@ -70,7 +70,7 @@ public class ClubcardAndroid {
         }
     }
 
-    public void stringBuilder() throws JSONException, ParseException, IOException {
+    private void stringBuilder() throws JSONException, ParseException, IOException {
         filterData();
         for (int i = 0; i < review.size(); i++) {
             String starRating = ":star:";
@@ -89,24 +89,57 @@ public class ClubcardAndroid {
         stringBuilder();
         client = HttpClientBuilder.create().build();
         post = new HttpPost("https://mattermost.ocset.net/hooks/w61bhukhjibtuk4t78zaukhr3r");
-        JSONObject finalObj = new JSONObject();
-        for (String finalS : finalString
-                ) {
-            finalObj.put("text", finalS);
-            post.setEntity(new StringEntity(finalObj.toString(), "UTF8"));
+
+        for (int i = 0; i < review.size(); i++) {
+            JSONObject finalJson = new JSONObject();
+            finalJson.put("username", "REVIEWS");
+            JSONArray attachmentArray = new JSONArray();
+            JSONObject attachmentJson = new JSONObject();
+
+            attachmentJson.put("author_name", "Android");
+            attachmentJson.put("fallback", "test");
+            attachmentJson.put("color", colourSet(rating.get(i)));
+            attachmentJson.put("pretext", starBuilder(rating.get(i)));
+            attachmentJson.put("text", review.get(i));
+
+            attachmentArray.put(attachmentJson);
+            finalJson.put("attachments", attachmentArray);
+            post.setEntity(new StringEntity(finalJson.toString()));
             client.execute(post);
             post.releaseConnection();
-            System.out.println("Android successfully completed");
+            System.out.println(finalJson.toString());
         }
+        System.out.println("Android completed");
     }
 
+    private String colourSet(int rating) {
+        String tagColour = "";
+        switch (rating) {
+            case 1:
+            case 2:
+                tagColour = "#FF0000";
+                break;
+            case 3:
+                tagColour = "#FF8C00";
+                break;
+            case 4:
+            case 5:
+                tagColour = "#008000";
+        }
+        return tagColour;
+    }
+
+    private String starBuilder(int rate) {
+        String starRating = ":star:";
+        while (rate > 1) {
+            starRating = starRating + " :star:";
+            rate--;
+        }
+        return starRating;
+    }
 
     public void darecheck() throws ParseException, IOException, JSONException {
 
         stringBuilder();
-        for (String finalS : finalString
-                ) {
-            System.out.println(finalS);
-        }
     }
 }

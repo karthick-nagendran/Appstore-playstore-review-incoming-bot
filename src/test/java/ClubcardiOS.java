@@ -35,7 +35,7 @@ public class ClubcardiOS {
     ArrayList<String> finalString = new ArrayList<>();
 
 
-    public JSONArray getJSONData() throws IOException, JSONException {
+    private JSONArray getJSONData() throws IOException, JSONException {
         client = HttpClientBuilder.create().build();
         request = new HttpGet("https://itunes.apple.com/gb/rss/customerreviews/page=1/id=351841850/sortby=mostrecent/xml");
 
@@ -46,7 +46,7 @@ public class ClubcardiOS {
         return (JSONArray) feed.get("entry");
     }
 
-    public int dateVerification(String rDate) throws ParseException {
+    private int dateVerification(String rDate) throws ParseException {
         String onlyDate = rDate.split("T", 0)[0];
 
         DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
@@ -56,7 +56,7 @@ public class ClubcardiOS {
         return (int) ((currentDate.getTime() - reviewDate.getTime()) / (1000 * 60 * 60 * 24));
     }
 
-    public void filterData() throws IOException, JSONException, ParseException {
+    private void filterData() throws IOException, JSONException, ParseException {
 
         JSONArray entry = getJSONData();
         for (int i = 0; i < entry.length() - 1; i++) {
@@ -79,16 +79,16 @@ public class ClubcardiOS {
         }
     }
 
-    public void stringBuilder() throws JSONException, ParseException, IOException {
+    private void stringBuilder() throws JSONException, ParseException, IOException {
         filterData();
         for (int i = 0; i < review.size(); i++) {
-            String starRating = ":star:";
+            StringBuilder starRating = new StringBuilder(":star:");
             int rate = rating.get(i);
             while (rate > 1) {
-                starRating = starRating + " :star:";
+                starRating.append(" :star:");
                 rate--;
             }
-            finalString.add(String.format("%s\n## %s\n%s\n\nOS: `iOS` %s ", starRating, title.get(i), review.get(i), oSVersion.get(i)));
+            finalString.add(String.format("%s\n## %s\n%s\n\nOS: `iOS` %s ", starRating.toString(), title.get(i), review.get(i), oSVersion.get(i)));
         }
     }
 
@@ -97,17 +97,62 @@ public class ClubcardiOS {
         stringBuilder();
         client = HttpClientBuilder.create().build();
         post = new HttpPost("https://mattermost.ocset.net/hooks/w61bhukhjibtuk4t78zaukhr3r");
-        JSONObject finalObj = new JSONObject();
-        for (String finalS : finalString
-                ) {
-            finalObj.put("text", finalS);
-            post.setEntity(new StringEntity(finalObj.toString(), "UTF8"));
+        for (int i = 0; i < review.size(); i++) {
+            JSONObject finalJson = new JSONObject();
+            finalJson.put("username", "REVIEWS");
+            JSONArray attachmentArray = new JSONArray();
+            JSONObject attachmentJson = new JSONObject();
+
+            attachmentJson.put("author_name", "iOS");
+            attachmentJson.put("fallback", "test");
+            attachmentJson.put("color", colourSet(rating.get(i)));
+            attachmentJson.put("pretext", starBuilder(rating.get(i)));
+            attachmentJson.put("text", review.get(i));
+            attachmentJson.put("title", title.get(i));
+
+            attachmentArray.put(attachmentJson);
+            JSONObject fieldsJson = new JSONObject();
+            fieldsJson.put("short", true);
+            fieldsJson.put("title", "App Version");
+            fieldsJson.put("value", oSVersion.get(i));
+
+            JSONArray fieldsArray = new JSONArray();
+            fieldsArray.put(fieldsJson);
+
+            attachmentJson.put("fields", fieldsArray);
+            finalJson.put("attachments", attachmentArray);
+            post.setEntity(new StringEntity(finalJson.toString()));
             client.execute(post);
             post.releaseConnection();
-            System.out.println("iOS successfully completed");
+            System.out.println(finalJson.toString());
         }
     }
 
+    private String colourSet(int rating) {
+        String tagColour = "";
+        switch (rating) {
+            case 1:
+            case 2:
+                tagColour = "#FF0000";
+                break;
+            case 3:
+                tagColour = "#FF8C00";
+                break;
+            case 4:
+            case 5:
+                tagColour = "#008000";
+        }
+        return tagColour;
+    }
+
+    private String starBuilder(int rate) {
+        String starRating = ":star:";
+        while (rate > 1) {
+            starRating = starRating + " :star:";
+            rate--;
+        }
+        return starRating;
+    }
 
     public void darecheck() throws ParseException, IOException, JSONException {
 
