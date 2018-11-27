@@ -96,6 +96,7 @@ public class ClubcardAndroid {
             post.setEntity(new StringEntity(finalObj.toString(), "UTF8"));
             client.execute(post);
             post.releaseConnection();
+            System.out.println("Android successfully completed");
         }
     }
 

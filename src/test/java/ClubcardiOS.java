@@ -104,6 +104,7 @@ public class ClubcardiOS {
             post.setEntity(new StringEntity(finalObj.toString(), "UTF8"));
             client.execute(post);
             post.releaseConnection();
+            System.out.println("iOS successfully completed");
         }
     }
 
