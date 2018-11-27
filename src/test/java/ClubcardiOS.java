@@ -95,17 +95,16 @@ public class ClubcardiOS {
     @Test
     public void executeCommand() throws JSONException, IOException, ParseException {
         stringBuilder();
-//        client = HttpClientBuilder.create().build();
-//        post = new HttpPost("https://mattermost.ocset.net/hooks/w61bhukhjibtuk4t78zaukhr3r");
-//        JSONObject finalObj = new JSONObject();
-//        for (String finalS : finalString
-//                ) {
-//            finalObj.put("text", finalS);
-//            post.setEntity(new StringEntity(finalObj.toString(), "UTF8"));
-//            client.execute(post);
-//            post.releaseConnection();
-//        }
-        System.out.println("iOS executes here *****");
+        client = HttpClientBuilder.create().build();
+        post = new HttpPost("https://mattermost.ocset.net/hooks/w61bhukhjibtuk4t78zaukhr3r");
+        JSONObject finalObj = new JSONObject();
+        for (String finalS : finalString
+                ) {
+            finalObj.put("text", finalS);
+            post.setEntity(new StringEntity(finalObj.toString(), "UTF8"));
+            client.execute(post);
+            post.releaseConnection();
+        }
     }
 
 
