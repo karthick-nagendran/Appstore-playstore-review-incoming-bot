@@ -126,6 +126,7 @@ public class ClubcardiOS {
             post.releaseConnection();
             System.out.println(finalJson.toString());
         }
+        System.out.println("iOS reviews done");
     }
 
     private String colourSet(int rating) {
