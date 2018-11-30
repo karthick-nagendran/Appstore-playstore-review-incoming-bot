@@ -84,7 +84,7 @@ public class ClubcardAndroid {
     }
 
 
-    @Test
+
     public void executeCommand() throws JSONException, IOException, ParseException {
         stringBuilder();
         client = HttpClientBuilder.create().build();
@@ -97,7 +97,7 @@ public class ClubcardAndroid {
             JSONObject attachmentJson = new JSONObject();
 
             attachmentJson.put("author_name", "Android");
-            attachmentJson.put("fallback", "test");
+            attachmentJson.put("fallback", "Android Reviews");
             attachmentJson.put("color", colourSet(rating.get(i)));
             attachmentJson.put("pretext", starBuilder(rating.get(i)));
             attachmentJson.put("text", review.get(i));

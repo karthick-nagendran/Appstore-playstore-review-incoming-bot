@@ -104,7 +104,7 @@ public class ClubcardiOS {
             JSONObject attachmentJson = new JSONObject();
 
             attachmentJson.put("author_name", "iOS");
-            attachmentJson.put("fallback", "test");
+            attachmentJson.put("fallback", "iOS Reviews");
             attachmentJson.put("color", colourSet(rating.get(i)));
             attachmentJson.put("pretext", starBuilder(rating.get(i)));
             attachmentJson.put("text", review.get(i));
@@ -155,7 +155,6 @@ public class ClubcardiOS {
     }
 
     public void darecheck() throws ParseException, IOException, JSONException {
-
         stringBuilder();
     }
 }
