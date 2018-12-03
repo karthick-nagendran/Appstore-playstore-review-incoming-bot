@@ -30,6 +30,7 @@ public class ClubcardAndroid {
     ArrayList<Integer> rating = new ArrayList<>();
     ArrayList<String> review = new ArrayList<>();
     ArrayList<String> finalString = new ArrayList<>();
+    ArrayList<String> reviewDate = new ArrayList<>();
 
 
     private JSONArray getJSONData() throws IOException, JSONException {
@@ -42,7 +43,6 @@ public class ClubcardAndroid {
     }
 
     private int dateVerification(String rDate) throws ParseException {
-
         DateFormat responseDateFormat = new SimpleDateFormat("MMMM dd, yyyy");
         String now = LocalDate.now().toString();
         DateFormat localDateFormat = new SimpleDateFormat("yyyy-MM-dd");
@@ -52,13 +52,14 @@ public class ClubcardAndroid {
     }
 
     private void filterData() throws IOException, JSONException, ParseException {
-
         JSONArray entry = getJSONData();
+        System.out.println(entry);
         for (int i = 0; i < entry.length() - 1; i++) {
             JSONObject obj = entry.getJSONObject(i);
             String rDate = (String) obj.get("date");
             int noOfDays = dateVerification(rDate);
             if (noOfDays == 1) {
+                reviewDate.add(rDate);
                 rating.add((Integer) obj.get("score"));
 
                 String rvString = (String) obj.get("text");
@@ -73,26 +74,26 @@ public class ClubcardAndroid {
     private void stringBuilder() throws JSONException, ParseException, IOException {
         filterData();
         for (int i = 0; i < review.size(); i++) {
-            String starRating = ":star:";
+            StringBuilder starRating = new StringBuilder(":star:");
             int rate = rating.get(i);
             while (rate > 1) {
-                starRating = starRating + " :star:";
+                starRating.append(" :star:");
                 rate--;
             }
-            finalString.add(String.format("%s\n\n %s\n\n**OS** : `Android` ", starRating, review.get(i)));
+            finalString.add(String.format("%s\n\n %s\n\n**OS** : `Android` ", starRating.toString(), review.get(i)));
         }
     }
 
 
-
+    @Test
     public void executeCommand() throws JSONException, IOException, ParseException {
         stringBuilder();
         client = HttpClientBuilder.create().build();
         post = new HttpPost("https://mattermost.ocset.net/hooks/w61bhukhjibtuk4t78zaukhr3r");
-
         for (int i = 0; i < review.size(); i++) {
             JSONObject finalJson = new JSONObject();
             finalJson.put("username", "REVIEWS");
+
             JSONArray attachmentArray = new JSONArray();
             JSONObject attachmentJson = new JSONObject();
 
@@ -103,13 +104,23 @@ public class ClubcardAndroid {
             attachmentJson.put("text", review.get(i));
 
             attachmentArray.put(attachmentJson);
+
+            JSONObject fieldsJson = new JSONObject();
+            fieldsJson.put("short", true);
+            fieldsJson.put("title", "date");
+            fieldsJson.put("value", reviewDate.get(i));
+
+            JSONArray fieldsArray = new JSONArray();
+            fieldsArray.put(fieldsJson);
+
+            attachmentJson.put("fields", fieldsArray);
             finalJson.put("attachments", attachmentArray);
             post.setEntity(new StringEntity(finalJson.toString()));
             client.execute(post);
             post.releaseConnection();
             System.out.println(finalJson.toString());
         }
-        System.out.println("Android completed");
+        System.out.println("Android reviews done");
     }
 
     private String colourSet(int rating) {
@@ -130,16 +141,15 @@ public class ClubcardAndroid {
     }
 
     private String starBuilder(int rate) {
-        String starRating = ":star:";
+        StringBuilder starRating = new StringBuilder(":star:");
         while (rate > 1) {
-            starRating = starRating + " :star:";
+            starRating.append(" :star:");
             rate--;
         }
-        return starRating;
+        return starRating.toString();
     }
 
     public void darecheck() throws ParseException, IOException, JSONException {
-
         stringBuilder();
     }
 }

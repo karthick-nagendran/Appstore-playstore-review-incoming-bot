@@ -14,6 +14,7 @@ import org.json.XML;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -33,6 +34,7 @@ public class ClubcardiOS {
     ArrayList<String> oSVersion = new ArrayList<>();
     ArrayList<String> review = new ArrayList<>();
     ArrayList<String> finalString = new ArrayList<>();
+    ArrayList<String > reviewDate = new ArrayList<>();
 
 
     private JSONArray getJSONData() throws IOException, JSONException {
@@ -46,9 +48,7 @@ public class ClubcardiOS {
         return (JSONArray) feed.get("entry");
     }
 
-    private int dateVerification(String rDate) throws ParseException {
-        String onlyDate = rDate.split("T", 0)[0];
-
+    private int dateVerification(String onlyDate) throws ParseException {
         DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
         String now = LocalDate.now().toString();
         Date reviewDate = dateFormat.parse(onlyDate);
@@ -57,23 +57,21 @@ public class ClubcardiOS {
     }
 
     private void filterData() throws IOException, JSONException, ParseException {
-
         JSONArray entry = getJSONData();
+        System.out.println(entry);
         for (int i = 0; i < entry.length() - 1; i++) {
             JSONObject obj = entry.getJSONObject(i);
             String rDate = (String) obj.get("updated");
-            int noOfDays = dateVerification(rDate);
+            String onlyDate = rDate.split("T", 0)[0];
+            int noOfDays = dateVerification(onlyDate);
             if (noOfDays == 1) {
-                title.add((String) obj.get("title"));
+                reviewDate.add(onlyDate);
+                title.add(formatString((String) obj.get("title")));
                 rating.add((Integer) obj.get("im:rating"));
                 oSVersion.add((String) obj.get("im:version"));
                 JSONArray contentArray = (JSONArray) obj.get("content");
                 JSONObject contentObj = (JSONObject) contentArray.get(0);
-
-                String rvString = (String) contentObj.get("content");
-                byte[] bytes = rvString.getBytes("ISO-8859-1");
-                String rvStringFormatted = new String(bytes, "UTF-8");
-                review.add(rvStringFormatted);
+                review.add(formatString((String) contentObj.get("content")));
             } else if (noOfDays > 1)
                 break;
         }
@@ -96,10 +94,11 @@ public class ClubcardiOS {
     public void executeCommand() throws JSONException, IOException, ParseException {
         stringBuilder();
         client = HttpClientBuilder.create().build();
-        post = new HttpPost("https://mattermost.ocset.net/hooks/w61bhukhjibtuk4t78zaukhr3r");
+        post = new HttpPost("https://mattermost.ocset.net/hooks/t5m65csyutraubka5cb3h8339h");
         for (int i = 0; i < review.size(); i++) {
             JSONObject finalJson = new JSONObject();
             finalJson.put("username", "REVIEWS");
+
             JSONArray attachmentArray = new JSONArray();
             JSONObject attachmentJson = new JSONObject();
 
@@ -111,13 +110,22 @@ public class ClubcardiOS {
             attachmentJson.put("title", title.get(i));
 
             attachmentArray.put(attachmentJson);
+
+
             JSONObject fieldsJson = new JSONObject();
             fieldsJson.put("short", true);
             fieldsJson.put("title", "App Version");
             fieldsJson.put("value", oSVersion.get(i));
 
+            JSONObject fieldJsonDate = new JSONObject();
+            fieldJsonDate.put("short",true);
+            fieldJsonDate.put("title","Date");
+            fieldJsonDate.put("value",reviewDate.get(i));
+
+
             JSONArray fieldsArray = new JSONArray();
             fieldsArray.put(fieldsJson);
+            fieldsArray.put(fieldJsonDate);
 
             attachmentJson.put("fields", fieldsArray);
             finalJson.put("attachments", attachmentArray);
@@ -147,12 +155,17 @@ public class ClubcardiOS {
     }
 
     private String starBuilder(int rate) {
-        String starRating = ":star:";
+        StringBuilder starRating = new StringBuilder(":star:");
         while (rate > 1) {
-            starRating = starRating + " :star:";
+            starRating.append(" :star:");
             rate--;
         }
-        return starRating;
+        return starRating.toString();
+    }
+
+    private String  formatString(String unformattedString ) throws UnsupportedEncodingException {
+        byte[] bytes = unformattedString.getBytes("ISO-8859-1");
+        return new String(bytes, "UTF-8");
     }
 
     public void darecheck() throws ParseException, IOException, JSONException {
