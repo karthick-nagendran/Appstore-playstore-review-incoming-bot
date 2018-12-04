@@ -169,6 +169,5 @@ public class ClubcardiOS {
     }
 
     public void darecheck() throws ParseException, IOException, JSONException {
-        stringBuilder();
     }
 }
