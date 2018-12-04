@@ -31,6 +31,8 @@ public class ClubcardAndroid {
     ArrayList<String> review = new ArrayList<>();
     ArrayList<String> finalString = new ArrayList<>();
     ArrayList<String> reviewDate = new ArrayList<>();
+    ArrayList<String> reviewerName = new ArrayList<>();
+    ArrayList<String> reviewLink = new ArrayList<>();
 
 
     private JSONArray getJSONData() throws IOException, JSONException {
@@ -61,6 +63,9 @@ public class ClubcardAndroid {
             if (noOfDays == 1) {
                 reviewDate.add(rDate);
                 rating.add((Integer) obj.get("score"));
+
+                reviewerName.add((String) obj.get("userName"));
+                reviewLink.add((String) obj.get("url"));
 
                 String rvString = (String) obj.get("text");
                 byte[] bytes = rvString.getBytes("ISO-8859-1");
@@ -102,6 +107,8 @@ public class ClubcardAndroid {
             attachmentJson.put("color", colourSet(rating.get(i)));
             attachmentJson.put("pretext", starBuilder(rating.get(i)));
             attachmentJson.put("text", review.get(i));
+            attachmentJson.put("title",reviewerName.get(i));
+            attachmentJson.put("title_link",reviewLink.get(i));
 
             attachmentArray.put(attachmentJson);
 
@@ -150,6 +157,6 @@ public class ClubcardAndroid {
     }
 
     public void darecheck() throws ParseException, IOException, JSONException {
-        stringBuilder();
+        String testMatermostLikn = "https://mattermost.ocset.net/hooks/t5m65csyutraubka5cb3h8339h";
     }
 }
