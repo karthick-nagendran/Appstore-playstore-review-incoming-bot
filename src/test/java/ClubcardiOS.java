@@ -94,7 +94,7 @@ public class ClubcardiOS {
     public void executeCommand() throws JSONException, IOException, ParseException {
         stringBuilder();
         client = HttpClientBuilder.create().build();
-        post = new HttpPost("https://mattermost.ocset.net/hooks/t5m65csyutraubka5cb3h8339h");
+        post = new HttpPost("https://mattermost.ocset.net/hooks/w61bhukhjibtuk4t78zaukhr3r");
         for (int i = 0; i < review.size(); i++) {
             JSONObject finalJson = new JSONObject();
             finalJson.put("username", "REVIEWS");

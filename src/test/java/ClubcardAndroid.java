@@ -35,6 +35,7 @@ public class ClubcardAndroid {
     ArrayList<String> reviewLink = new ArrayList<>();
 
 
+    // Get JSON data from 3rd Party API
     private JSONArray getJSONData() throws IOException, JSONException {
         client = HttpClientBuilder.create().build();
         request = new HttpGet("https://still-plateau-10039.herokuapp.com/reviews?id=com.tesco.clubcardmobile");
@@ -44,6 +45,7 @@ public class ClubcardAndroid {
         return new JSONArray(json);
     }
 
+    //return the difference between today and review date
     private int dateVerification(String rDate) throws ParseException {
         DateFormat responseDateFormat = new SimpleDateFormat("MMMM dd, yyyy");
         String now = LocalDate.now().toString();
@@ -53,6 +55,7 @@ public class ClubcardAndroid {
         return (int) ((currentDate.getTime() - reviewDate.getTime()) / (1000 * 60 * 60 * 24));
     }
 
+    // Filter the reviews based on date default is 1 day
     private void filterData() throws IOException, JSONException, ParseException {
         JSONArray entry = getJSONData();
         System.out.println(entry);
@@ -76,6 +79,7 @@ public class ClubcardAndroid {
         }
     }
 
+    //dummy
     private void stringBuilder() throws JSONException, ParseException, IOException {
         filterData();
         for (int i = 0; i < review.size(); i++) {
@@ -90,6 +94,7 @@ public class ClubcardAndroid {
     }
 
 
+    //Building the JSON and push to mattermost
     @Test
     public void executeCommand() throws JSONException, IOException, ParseException {
         stringBuilder();
@@ -130,19 +135,20 @@ public class ClubcardAndroid {
         System.out.println("Android reviews done");
     }
 
+    //Set the colour of the fallback
     private String colourSet(int rating) {
         String tagColour = "";
         switch (rating) {
             case 1:
             case 2:
-                tagColour = "#FF0000";
+                tagColour = "#FF0000"; //Red colour
                 break;
             case 3:
-                tagColour = "#FF8C00";
+                tagColour = "#FF8C00"; //Yellow colour
                 break;
             case 4:
             case 5:
-                tagColour = "#008000";
+                tagColour = "#008000";//Green colour
         }
         return tagColour;
     }
