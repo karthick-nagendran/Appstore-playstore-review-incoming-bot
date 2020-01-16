@@ -38,7 +38,7 @@ public class ClubcardAndroid {
     // Get JSON data from 3rd Party API
     private JSONArray getJSONData() throws IOException, JSONException {
         client = HttpClientBuilder.create().build();
-        request = new HttpGet("https://still-plateau-10039.herokuapp.com/reviews?id=com.tesco.clubcardmobile");
+        request = new HttpGet("https://still-plateau-10039.herokuapp.com/reviews?id=<App bundle ID>");
 
         response = client.execute((HttpUriRequest) request);
         String json = EntityUtils.toString(response.getEntity());
