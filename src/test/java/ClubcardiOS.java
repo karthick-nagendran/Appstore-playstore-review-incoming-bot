@@ -39,7 +39,7 @@ public class ClubcardiOS {
 
     private JSONArray getJSONData() throws IOException, JSONException {
         client = HttpClientBuilder.create().build();
-        request = new HttpGet("https://itunes.apple.com/gb/rss/customerreviews/page=1/id=351841850/sortby=mostrecent/xml");
+        request = new HttpGet("https://itunes.apple.com/gb/rss/customerreviews/page=1/id=<App_ID 9 digits app id from devloper account>/sortby=mostrecent/xml");
 
         response = client.execute((HttpUriRequest) request);
         String xml = EntityUtils.toString(response.getEntity());
