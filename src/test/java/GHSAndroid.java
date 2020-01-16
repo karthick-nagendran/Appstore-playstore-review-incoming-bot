@@ -35,7 +35,7 @@ public class GHSAndroid {
 
     public JSONArray getJSONData() throws IOException, JSONException {
         client = HttpClientBuilder.create().build();
-        request = new HttpGet("https://still-plateau-10039.herokuapp.com/reviews?id=com.tesco.grocery.view");
+        request = new HttpGet("https://still-plateau-10039.herokuapp.com/reviews?id=<App Bundle ID>");
 
         response = client.execute((HttpUriRequest) request);
         String json = EntityUtils.toString(response.getEntity());
